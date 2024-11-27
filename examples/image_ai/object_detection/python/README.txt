@@ -52,8 +52,6 @@ Arguments
 
 -n, --net: Path to the pre-trained model file (HEF).
 -i, --input: Path to the input image on which object detection will be performed.
--o, --output: Path to save the output image with annotated objects.
--l, --labels: Path to a text file containing class labels for the detected objects.
 
 For more information:
 ./object_detection.py -h
