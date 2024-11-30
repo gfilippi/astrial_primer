@@ -35,12 +35,12 @@ typedef struct app_params
  */
 
 /* see ASTRIAL pin map for gpio selection
-GPIO(N) gpiochip(N)    lane
-===========================
-GPIO23 	gpiochip1 	1
-GPIO24 	gpiochip1 	2
-GPIO25 	gpiochip1 	3
-*/
+ * GPIO(N) gpiochip(N)    lane
+ * ===========================
+ * GPIO23   gpiochip1   1
+ * GPIO24   gpiochip1   2
+ * GPIO25   gpiochip1   3
+ */
 
 #define IMX8MP_CAM_GPIOCHIP "gpiochip1"
 #define IMX8MP_CAM_GPIO ( 1 )
@@ -48,9 +48,9 @@ GPIO25 	gpiochip1 	3
 #define IMX8MP_CAM_FPS_MAX ( 120 )
 #define IMX8MP_CAM_FPS_DEFAULT ( 15 )
 
-#define OPTIONAL_ARGUMENT_IS_PRESENT                                    \
-    ( ( optarg == NULL && optind < argc && argv[ optind ][ 0 ] != '-' ) \
-      ? (bool) ( optarg = argv[ optind++ ] )                            \
+#define OPTIONAL_ARGUMENT_IS_PRESENT                                        \
+        ( ( optarg == NULL && optind < argc && argv[ optind ][ 0 ] != '-' ) \
+      ? (bool) ( optarg = argv[ optind++ ] )                                \
       : ( optarg != NULL ) )
 
 /*
