@@ -18,7 +18,7 @@
 // No optimizations and Debug info
 // g++ -g -O0 -o yolohailo yolov8.cpp -lhailort && ./yolohailo
 
-std::string hefFile             = "yolov8s.hef";
+std::string hefFile             = "./resources/yolov8s.hef";
 std::string imgFilename         = "test-image-640x640.jpg";
 float       confidenceThreshold = 0.5f;  // Lower number = accept more boxes
 float       nmsIoUThreshold     = 0.45f; // Lower number = merge more boxes (I think!)
