@@ -1,5 +1,7 @@
 #!/bin/bash
 
+clear
+
 ## NOTE: use the following only for cross-compile
 #declare -A COMPILER=( [x86_64]=/usr/bin/gcc
 #                      [aarch64]=/usr/bin/aarch64-linux-gnu-gcc
