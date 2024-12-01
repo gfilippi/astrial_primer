@@ -1,0 +1,189 @@
+################################################################
+# HAILORTCLI (command line interface)
+################################################################
+# see: docs/hailort_4.19.0_user_guide.pdf
+################################################################
+
+
+# see full-option list from "hailortcli run"
+
+# NOTE: not all the option are available on ASTRIAL, for example
+# power can be measured only with Hailo M.2 modules (dev kit)
+
+>  hailortcli run --help
+
+Run a compiled network
+Usage: hailortcli run [OPTIONS] [hef] [SUBCOMMAND]
+
+Positionals:
+  hef TEXT:(FILE) OR (DIR)    An existing HEF file/directory path
+
+Options:
+  -h,--help                   Print this help message and exit
+  -c,--frames-count UINT:POSITIVE Excludes: --time-to-run --net-batch-size
+                              Frames count to run
+  -t,--time-to-run UINT:POSITIVE Excludes: --frames-count
+                              Time to run (seconds)
+  --batch-size UINT:NONNEGATIVE [0]  Excludes: --net-batch-size
+                              Inference batch (should be a divisor of --frames-count if provided).
+                              This batch applies to the whole network_group. for differential batch per network, see --net-batch-size
+  --net-batch-size TEXT ... Excludes: --frames-count --batch-size
+                              Inference batch per network (network names can be found using parse-hef command).
+                              In case of multiple networks, usage is as follows: --net-batch-size <network_name_1>=<batch_size_1> --net-batch-size <network_name_2>=<batch_size_2>
+  --power-mode ENUM:{performance,ultra_performance} [performance]  Excludes: --multi-process-service
+                              Core power mode (PCIE only; ignored otherwise)
+  -m,--mode ENUM:{streaming,hw_only} [streaming]
+                              Inference mode
+  --csv TEXT                  If set print the output as csv to the specified path
+  --input-files TEXT:           Input file (.bin) path/paths. On single input network, give the full path of the data file.
+                                On multiple inputs network, the format is input_name1=path1 input_name2=path2, where
+                                input_name1 is the name of the input stream. If not given, random data will be used ...
+  --measure-latency           Measure network latency
+  --measure-overall-latency Needs: --measure-latency
+                              Include overall latency measurement
+  --dot TEXT                  If set print the pipeline graph as a .dot file at the specified path
+  --measure-power Excludes: --multi-process-service --measure-current
+                              Measure power consumption
+  --measure-current Excludes: --multi-process-service --measure-power
+                              Measure current
+  --show-progress,--dont-show-progress{false} [true]
+                              Show inference progress
+  --measure-temp Excludes: --multi-process-service
+                              Measure chip temperature
+
+[Option Group: Device Options]
+  Options:
+    -s,--device-id TEXT ...     Device id, same as returned from `hailortcli scan` command. For multiple devices, use space as separator.
+
+    --bdf TEXT:BDF ...          Device bdf ([<domain>]:<bus>:<device>.<func>, same as in lspci command).
+                                For multiple BDFs, use space as separator.
+
+    --ip TEXT:IPV4 ...          IP address of the target
+[Option Group: VDevice Options]
+  Options:
+    --device-count UINT:POSITIVE
+                                VDevice device count
+    --multi-process-service Excludes: --power-mode --measure-power --measure-current --elem-fps  --elem-queue-size --sampling-period --averaging-factor --measure-temp
+                                VDevice multi process service
+    --group-id TEXT             VDevice group id
+[Option Group: Transformations]
+  Options:
+    --quantized BOOLEAN [true]  true means the tool assumes that the data is already quantized,
+                                false means it is the tool's responsibility to quantize (scale) the data.
+                                Note: '--quantized' is deprecated
+
+    --user-format-type ENUM:{auto,uint8,uint16,float32} [auto]
+                                The host data type
+[Option Group: Measure Power/Current]
+  Options:
+    --sampling-period UINT:{140,204,332,588,1100,2116,4156,8244} [1100]  Excludes: --multi-process-service
+                                Sampling Period
+    --averaging-factor UINT:{1,4,16,64,128,256,512,1024} [256]  Excludes: --multi-process-service
+                                Averaging Factor
+
+Subcommands:
+  measure-stats               Pipeline Statistics Measurements
+  collect-runtime-data        Collect runtime data to be used by the Profiler
+
+
+
+# check model sizes in MB
+
+> ls -ltr ./resources/
+
+-rw-r--r-- 1 root root 5.1M Dec  1 09:21 mobilenetv2_yuv_105.hef
+-rw-r--r-- 1 root root  18M Dec  1 09:21 yolov5m.hef
+-rw-r--r-- 1 root root  18M Dec  1 09:21 yolov5m_wo_spp.hef
+-rw-r--r-- 1 root root  18M Dec  1 09:21 yolov5m_yuv.hef
+-rw-r--r-- 1 root root  34M Dec  1 09:21 yolov7.hef
+-rw-r--r-- 1 root root  27M Dec  1 09:21 yolov8m.hef
+-rw-r--r-- 1 root root  19M Dec  1 09:21 yolov8s.hef
+-rw-r--r-- 1 root root  12M Dec  1 09:21 yolox_tiny.hef
+-rw-r--r-- 1 root root  60K Dec  1 09:25 hailort.log
+
+
+# compare RAW performances (multi-thread input)
+
+hailortcli run ./resources/mobilenetv2_yuv_105.hef 
+
+# MOBILENET-V2
+> hailortcli run ./resources/mobilenetv2_yuv_105.hef
+
+Running streaming inference (./resources/mobilenetv2_yuv_105.hef):
+  Transform data: true
+    Type:      auto
+    Quantized: true
+Network mobilenetv2_yuv_105/mobilenetv2_yuv_105: 100% | 12031 | FPS: 2403.00 | ETA: 00:00:00
+Inference result:
+ Network group: mobilenetv2_yuv_105
+    Frames count: 12031
+    FPS: 2403.12
+    Send Rate: 1446.95 Mbit/s
+    Recv Rate: 19.22 Mbit/s
+
+
+# YOLOV5m, 640x640, RGB
+> hailortcli run ./resources/yolov5m.hef   Running streaming inference (./resources/yolov5m.hef):
+  Transform data: true
+    Type:      auto
+    Quantized: true
+Network yolov5m/yolov5m: 100% | 783 | FPS: 156.39 | ETA: 00:00:00
+
+Inference result:
+ Network group: yolov5m
+    Frames count: 783
+    FPS: 156.40
+    Send Rate: 1537.48 Mbit/s
+    Recv Rate: 2690.59 Mbit/s
+
+
+# YOLOV5m, 720P, yuv
+> run ./resources/yolov5m_yuv.hef
+
+Running streaming inference (./resources/yolov5m_yuv.hef):
+  Transform data: true
+    Type:      auto
+    Quantized: true
+Network yolov5m_yuv/yolov5m_yuv: 100% | 514 | FPS: 102.66 | ETA: 00:00:00
+Inference result:
+ Network group: yolov5m_yuv
+    Frames count: 514
+    FPS: 102.66
+    Send Rate: 1513.85 Mbit/s
+    Recv Rate: 1776.01 Mbit/s
+
+
+# YOLOV8s
+> hailortcli run ./resources/yolov8s.hef
+
+Running streaming inference (./resources/yolov8s.hef):
+  Transform data: true
+    Type:      auto
+    Quantized: true
+Network yolov8s/yolov8s: 100% | 367 | FPS: 73.12 | ETA: 00:00:00
+Inference result:
+ Network group: yolov8s
+    Frames count: 367
+    FPS: 73.13
+    Send Rate: 718.92 Mbit/s
+    Recv Rate: 714.43 Mbit/s
+
+
+# YOLOV8m
+> hailortcli run ./resources/yolov8m.hef
+
+Running streaming inference (./resources/yolov8m.hef):
+  Transform data: true
+    Type:      auto
+    Quantized: true
+Network yolov8m/yolov8m: 100% | 146 | FPS: 29.12 | ETA: 00:00:00
+Inference result:
+ Network group: yolov8m
+    Frames count: 146
+    FPS: 29.12
+    Send Rate: 286.25 Mbit/s
+    Recv Rate: 284.46 Mbit/s
+
+
+
+

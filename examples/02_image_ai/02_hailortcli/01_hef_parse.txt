@@ -1,0 +1,104 @@
+################################################################
+# HAILORTCLI (command line interface)
+################################################################
+# see: docs/hailort_4.19.0_user_guide.pdf
+################################################################
+
+
+# check size of models, Hailo8 has ONLY 32MB of RAM, data+model
+
+ls -ltr ./resources/
+
+-rw-r--r-- 1 root root 5.1M Dec  1 09:21 mobilenetv2_yuv_105.hef
+-rw-r--r-- 1 root root  18M Dec  1 09:21 yolov5m.hef
+-rw-r--r-- 1 root root  18M Dec  1 09:21 yolov5m_wo_spp.hef
+-rw-r--r-- 1 root root  18M Dec  1 09:21 yolov5m_yuv.hef
+-rw-r--r-- 1 root root  34M Dec  1 09:21 yolov7.hef
+-rw-r--r-- 1 root root  27M Dec  1 09:21 yolov8m.hef
+-rw-r--r-- 1 root root  19M Dec  1 09:21 yolov8s.hef
+-rw-r--r-- 1 root root  12M Dec  1 09:21 yolox_tiny.hef
+
+#
+# inspect models for in/out data streams
+#
+
+# 01: yolov5m, SINGLE CONTEXT, prev toolchain
+
+> hailortcli parse-hef ./resources/yolov5m.hef
+
+Architecture HEF was compiled for: HAILO8
+Network group name: yolov5m, Single Context
+    Network name: yolov5m/yolov5m
+        VStream infos:
+            Input  yolov5m/input_layer1 UINT8, NHWC(640x640x3)
+            Output yolov5m/conv94 UINT8, FCR(20x20x255)
+            Output yolov5m/conv85 UINT8, FCR(40x40x255)
+            Output yolov5m/conv75 UINT8, FCR(80x80x255)
+
+# 02: yolov5m SINGLE CONTEXT, YUY2 (YCbCr 4:2:2) input
+
+> hailortcli parse-hef ./resources/yolov5m_yuv.hef
+
+Architecture HEF was compiled for: HAILO8
+Network group name: yolov5m_yuv, Single Context
+    Network name: yolov5m_yuv/yolov5m_yuv
+        VStream infos:
+            Input  yolov5m_yuv/input_layer1 UINT8, YUY2(720x1280x2)
+            Output yolov5m_yuv/conv93 UINT8, NHWC(20x20x255)
+            Output yolov5m_yuv/conv83 UINT8, NHWC(40x40x255)
+            Output yolov5m_yuv/conv73 UINT8, NHWC(80x80x255)
+
+# 03: yolov5m, SINGLE CONTEXT, current toolchain (extra info)
+
+> hailortcli parse-hef ./resources/yolov5m_wo_spp.hef
+
+Architecture HEF was compiled for: HAILO8
+Network group name: yolov5m_wo_spp, Single Context
+    Network name: yolov5m_wo_spp/yolov5m_wo_spp
+        VStream infos:
+            Input  yolov5m_wo_spp/input_layer1 UINT8, NHWC(640x640x3)
+            Output yolov5m_wo_spp/yolov5_nms_postprocess FLOAT32, HAILO NMS(number of classes: 80, maximum bounding boxes per class: 80, maximum frame size: 128320)
+            Operation:
+                Op YOLOV5
+                Name: YOLOv5-Post-Process
+                Score threshold: 0.200
+                IoU threshold: 0.60
+                Classes: 80
+                Cross classes: false
+                Max bboxes per class: 80
+                Image height: 640
+                Image width: 640
+
+# yolov8m, MULTIPLE CONTEXT
+
+> hailortcli parse-hef ./resources/yolov8m.hef
+
+Architecture HEF was compiled for: HAILO8
+Network group name: yolov8m, Multi Context - Number of contexts: 3
+    Network name: yolov8m/yolov8m
+        VStream infos:
+            Input  yolov8m/input_layer1 UINT8, NHWC(640x640x3)
+            Output yolov8m/yolov8_nms_postprocess FLOAT32, HAILO NMS(number of classes: 80, maximum bounding boxes per class: 100, maximum frame size: 160320)
+            Operation:
+                Op YOLOV8
+                Name: YOLOV8-Post-Process
+                Score threshold: 0.200
+                IoU threshold: 0.70
+                Classes: 80
+                Cross classes: false
+                Max bboxes per class: 100
+                Image height: 640
+                Image width: 640
+
+
+# custom mobilenet_v2, dual input stream
+
+> hailortcli parse-hef ./resources/mobilenetv2_yuv_105.hef
+
+Architecture HEF was compiled for: HAILO8
+Network group name: mobilenetv2_yuv_105, Single Context
+    Network name: mobilenetv2_yuv_105/mobilenetv2_yuv_105
+        VStream infos:
+            Input  mobilenetv2_yuv_105/input_layer1 UINT8, NHWC(224x224x1)
+            Input  mobilenetv2_yuv_105/input_layer2 UINT8, NHWC(112x112x2)
+            Output mobilenetv2_yuv_105/fc1 UINT8, NC(1000)

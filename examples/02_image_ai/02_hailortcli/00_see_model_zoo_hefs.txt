@@ -1,0 +1,25 @@
+==============================================
+Hailo model zoo ready-made hef files: (GitHub)
+==============================================
+
+https://github.com/hailo-ai/hailo_model_zoo
+
+List of available files for PUBLIC models:
+
+https://github.com/hailo-ai/hailo_model_zoo/blob/master/docs/PUBLIC_MODELS.rst
+
+select Hailo8 column for the class you would like to use, for example CLASSIFICATION
+
+https://github.com/hailo-ai/hailo_model_zoo/blob/master/docs/public_models/HAILO8/HAILO8_classification.rst
+
+
+==============================================
+Hailo MODEL EXPLORER, requires account on hailo.ai (free)
+==============================================
+
+allows to easily compare performance for model selection:
+
+https://hailo.ai/developer-zone/
+
+https://hailo.ai/products/hailo-software/model-explorer/
+
