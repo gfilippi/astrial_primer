@@ -20,8 +20,8 @@
 
 std::string hefFile = "./resources/yolov8s.hef";
 std::string imgFilename = "test-image-640x640.jpg";
-float       confidenceThreshold = 0.5f;  // Lower number = accept more boxes
-float       nmsIoUThreshold = 0.45f;     // Lower number = merge more boxes (I think!)
+float confidenceThreshold = 0.5f;  // Lower number = accept more boxes
+float nmsIoUThreshold = 0.45f;     // Lower number = merge more boxes (I think!)
 
 int run( )
 {
@@ -32,22 +32,22 @@ int run( )
     // Load/Init
     ////////////////////////////////////////////////////////////////////////////////////////////
 
-    Expected<std::unique_ptr<VDevice> >            vdevice_exp = VDevice::create( );
+    Expected<std::unique_ptr<VDevice> > vdevice_exp = VDevice::create( );
     if ( !vdevice_exp )
     {
         printf( "Failed to create vdevice\n" );
         return vdevice_exp.status( );
     }
-    std::unique_ptr<hailort::VDevice>              vdevice = vdevice_exp.release( );
+    std::unique_ptr<hailort::VDevice> vdevice = vdevice_exp.release( );
 
     // Create infer model from HEF file.
-    Expected<std::shared_ptr<InferModel> >         infer_model_exp = vdevice->create_infer_model( hefFile );
+    Expected<std::shared_ptr<InferModel> > infer_model_exp = vdevice->create_infer_model( hefFile );
     if ( !infer_model_exp )
     {
         printf( "Failed to create infer model\n" );
         return infer_model_exp.status( );
     }
-    std::shared_ptr<hailort::InferModel>           infer_model = infer_model_exp.release( );
+    std::shared_ptr<hailort::InferModel> infer_model = infer_model_exp.release( );
     infer_model->set_hw_latency_measurement_flags( HAILO_LATENCY_MEASURE );
     infer_model->output( )->set_nms_score_threshold( confidenceThreshold );
     infer_model->output( )->set_nms_iou_threshold( nmsIoUThreshold );
@@ -60,15 +60,15 @@ int run( )
     // set_nms_score_threshold is the most straightforward way of controlling the threshold for
     // which objects end up in the output. If you want to raise this threshold, then it's more
     // efficient to do so here, vs filtering after NMS processing.
-    auto                                           outputStream = infer_model->output( );
+    auto outputStream = infer_model->output( );
     outputStream->set_nms_score_threshold( 0.5f );
 
-    int                                            nnWidth = infer_model->inputs( )[ 0 ].shape( ).width;
-    int                                            nnHeight = infer_model->inputs( )[ 0 ].shape( ).height;
+    int nnWidth = infer_model->inputs( )[ 0 ].shape( ).width;
+    int nnHeight = infer_model->inputs( )[ 0 ].shape( ).height;
 
     // Configure the infer model
     // infer_model->output()->set_format_type(HAILO_FORMAT_TYPE_FLOAT32);
-    Expected<ConfiguredInferModel>                 configured_infer_model_exp = infer_model->configure( );
+    Expected<ConfiguredInferModel> configured_infer_model_exp = infer_model->configure( );
     if ( !configured_infer_model_exp )
     {
         printf( "Failed to get configured infer model\n" );
@@ -77,25 +77,25 @@ int run( )
     std::shared_ptr<hailort::ConfiguredInferModel> configured_infer_model = std::make_shared<ConfiguredInferModel>( configured_infer_model_exp.release( ) );
 
     // Create infer bindings
-    Expected<ConfiguredInferModel::Bindings>       bindings_exp = configured_infer_model->create_bindings( );
+    Expected<ConfiguredInferModel::Bindings> bindings_exp = configured_infer_model->create_bindings( );
     if ( !bindings_exp )
     {
         printf( "Failed to get infer model bindings\n" );
         return bindings_exp.status( );
     }
-    hailort::ConfiguredInferModel::Bindings        bindings = std::move( bindings_exp.release( ) );
+    hailort::ConfiguredInferModel::Bindings bindings = std::move( bindings_exp.release( ) );
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Run
     ////////////////////////////////////////////////////////////////////////////////////////////
 
-    const std::string&                             input_name = infer_model->get_input_names( )[ 0 ];
-    size_t                                         input_frame_size = infer_model->input( input_name )->get_frame_size( );
+    const std::string& input_name = infer_model->get_input_names( )[ 0 ];
+    size_t input_frame_size = infer_model->input( input_name )->get_frame_size( );
     printf( "input_name: %s\n",       input_name.c_str( ) );
     printf( "input_frame_size: %d\n", (int) input_frame_size ); // eg 640x640x3 = 1228800
 
-    int                                            imgWidth = 0, imgHeight = 0, imgChan = 0;
-    unsigned char*                                 img_rgb_8 = stbi_load( imgFilename.c_str( ), &imgWidth, &imgHeight, &imgChan, 3 );
+    int imgWidth = 0, imgHeight = 0, imgChan = 0;
+    unsigned char* img_rgb_8 = stbi_load( imgFilename.c_str( ), &imgWidth, &imgHeight, &imgChan, 3 );
     if ( !img_rgb_8 )
     {
         printf( "Failed to load image %s\n", imgFilename.c_str( ) );
@@ -110,21 +110,21 @@ int run( )
         printf( "Input image resolution %d x %d not equal to NN input resolution %d x %d\n", imgWidth, imgHeight, nnWidth, nnHeight );
     }
 
-    auto                                           status = bindings.input( input_name )->set_buffer( MemoryView( (void*) ( img_rgb_8 ), input_frame_size ) );
+    auto status = bindings.input( input_name )->set_buffer( MemoryView( (void*) ( img_rgb_8 ), input_frame_size ) );
     if ( status != HAILO_SUCCESS )
     {
         printf( "Failed to set memory buffer: %d\n", (int) status );
         return status;
     }
 
-    std::vector<OutTensor>                         output_tensors;
+    std::vector<OutTensor> output_tensors;
 
     // Output tensors.
     for (auto const& output_name : infer_model->get_output_names( ) )
     {
-        size_t                                output_size = infer_model->output( output_name )->get_frame_size( );
+        size_t output_size = infer_model->output( output_name )->get_frame_size( );
 
-        uint8_t*                              output_buffer = (uint8_t*) malloc( output_size );
+        uint8_t* output_buffer = (uint8_t*) malloc( output_size );
         if ( !output_buffer )
         {
             printf( "Could not allocate an output buffer!" );
@@ -139,8 +139,8 @@ int run( )
         }
 
         const std::vector<hailo_quant_info_t> quant = infer_model->output( output_name )->get_quant_infos( );
-        const hailo_3d_image_shape_t          shape = infer_model->output( output_name )->shape( );
-        const hailo_format_t                  format = infer_model->output( output_name )->format( );
+        const hailo_3d_image_shape_t shape = infer_model->output( output_name )->shape( );
+        const hailo_format_t format = infer_model->output( output_name )->format( );
         output_tensors.emplace_back( output_buffer, output_name, quant[ 0 ], shape, format );
 
         printf( "Output tensor %s, %d bytes, shape (%d, %d, %d)\n", output_name.c_str( ), (int) output_size, (int) shape.height, (int) shape.width, (int) shape.features );
@@ -160,13 +160,13 @@ int run( )
     }
 
     // Dispatch the job.
-    Expected<AsyncInferJob>                        job_exp = configured_infer_model->run_async( bindings );
+    Expected<AsyncInferJob> job_exp = configured_infer_model->run_async( bindings );
     if ( !job_exp )
     {
         printf( "Failed to start async infer job, status = %d\n", (int) job_exp.status( ) );
         return status;
     }
-    hailort::AsyncInferJob                         job = job_exp.release( );
+    hailort::AsyncInferJob job = job_exp.release( );
 
     // Detach and let the job run.
     job.detach( );
@@ -186,11 +186,11 @@ int run( )
         return status;
     }
 
-    bool                                           nmsOnHailo = infer_model->outputs( ).size( ) == 1 && infer_model->outputs( )[ 0 ].is_nms( );
+    bool nmsOnHailo = infer_model->outputs( ).size( ) == 1 && infer_model->outputs( )[ 0 ].is_nms( );
 
     if ( nmsOnHailo )
     {
-        OutTensor*   out = &output_tensors[ 0 ];
+        OutTensor* out = &output_tensors[ 0 ];
 
         const float* raw = (const float*) out->data;
 
@@ -198,9 +198,9 @@ int run( )
 
         // The format is:
         // Number of boxes in that class (N), followed by the 5 box parameters, repeated N times
-        size_t       numClasses = (size_t) out->shape.height;
-        size_t       classIdx = 0;
-        size_t       idx = 0;
+        size_t numClasses = (size_t) out->shape.height;
+        size_t classIdx = 0;
+        size_t idx = 0;
         while ( classIdx < numClasses )
         {
             size_t numBoxes = (size_t) raw[ idx++ ];

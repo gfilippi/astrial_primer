@@ -58,7 +58,7 @@ typedef struct app_params
  * GLOBALS
  * ***************************************************************************
  */
-const char    app_name[] = "simple_trigger";
+const char app_name[] = "simple_trigger";
 APP_PARAMS_T* g_app_params = NULL;
 const uint8_t fps_supported[] = { 1, 5, 10, 15, 24, 25, 30, 50, 60, 120, 0 };
 
@@ -102,9 +102,9 @@ int8_t help( int argc, char** argv )
 
 int8_t parse_cli( APP_PARAMS_T* app_params, int argc, char** argv  )
 {
-    int8_t               err = 0;
-    int                  c;
-    int8_t               quit_f = 0;
+    int8_t err = 0;
+    int c;
+    int8_t quit_f = 0;
 
     static struct option long_options[] =
     {
@@ -189,8 +189,8 @@ quit_parse:
  */
 int main( int argc, char** argv )
 {
-    int8_t           err = 0;
-    APP_PARAMS_T     app_params = { 0 };
+    int8_t err = 0;
+    APP_PARAMS_T app_params = { 0 };
 
 
     /*
