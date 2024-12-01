@@ -74,9 +74,6 @@ PIPELINE="gst-launch-1.0 \
     hailooverlay ! \
     queue leaky=downstream max-size-buffers=5 max-size-bytes=0 max-size-time=0 ! \
     imxvideoconvert_g2d !  vpuenc_h264 ! h264parse ! qtmux ! filesink location=\"output.mp4\""
-    
-    #videoconvert ! \
-    #fpsdisplaysink video-sink=autovideosink name=hailo_display sync=false text-overlay=false ${additional_parameters}"
 
 echo "Running $network_name"
 echo ${PIPELINE}
