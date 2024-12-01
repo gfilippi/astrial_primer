@@ -1,0 +1,123 @@
+################################################################
+# HAILORTCLI (command line interface)
+################################################################
+# see: docs/hailort_4.19.0_user_guide.pdf
+################################################################
+
+# KNOWN LIMITATIONS:
+# 1) power, current and temp can be measured with official M.2 modules
+# 2) multi-input models cannot measure latency
+
+
+# see full-option list from "hailortcli run2"
+
+> hailortcli run2 --help
+
+
+Run networks
+Usage: hailortcli run2 [OPTIONS] [SUBCOMMAND]
+
+Options:
+  -h,--help                   Print this help message and exit
+  -t,--time-to-run UINT:POSITIVE [5]
+                              Time to run (seconds)
+  -m,--mode ENUM:{full_sync,full_async,raw_sync,raw_async} [full_sync]
+                              Inference mode
+                              Note: 'full' is deprecated, please use 'full_sync' instead.
+                              Note: 'raw' is deprecated, please use 'raw_sync' instead.
+
+  -j,--json TEXT              If set save statistics as json to the specified path
+  --scheduling-algorithm ENUM:{round_robin,none}
+                              Scheduling algorithm
+
+[Option Group: VDevice Options]
+  Options:
+    -s,--device-id TEXT ... Excludes: --device-count
+                                Device id, same as returned from `hailortcli scan` command. For multiple devices, use space as separator.
+    --device-count UINT:POSITIVE [1]  Excludes: --device-id
+                                VDevice device count
+    --group-id TEXT [UNIQUE]    VDevice group id
+    --multi-process-service [0]
+                                VDevice multi process service
+[Option Group: Measurement Options]
+  Options:
+    --measure-power [0]  Excludes: --measure-current
+                                Measure power consumption
+    --measure-current [0]  Excludes: --measure-power
+                                Measure current
+    --measure-latency [0]       Measure network latency on the NN core
+    --measure-overall-latency [0]
+                                Measure overall latency measurement
+    --measure-temp [0]          Measure chip temperature
+
+Subcommands:
+  measure-fw-actions, collect-runtime-data
+                              Collect runtime data to be used by the Profiler
+  set-net                     Set network
+
+
+# YOLOV5m, 640x640, RGB
+>run2 --measure-latency set-net ./resources/yolov5m.hef
+
+[HailoRT CLI] [warning] Measuring latency; frames are sent one at a time and FPS will not be measured
+[===================>] 100% 00:00:00
+yolov5m: hw latency: 17.02 ms
+
+# YOLOV5m, 720P, YUY2 (single input)
+> hailortcli run2 --measure-latency set-net ./resources/yolov5m_yuv.hef
+
+[HailoRT CLI] [warning] Measuring latency; frames are sent one at a time and FPS will not be measured
+[===================>] 100% 00:00:00
+yolov5m_yuv: hw latency: 21.67 ms
+
+
+#
+# WHAT ABOUT CPU GOVERNOR? set performance and compare results
+#
+
+cpufreq-info => check current clock
+
+cpufreq-set -g performance
+
+cpufreq-info => check current clock
+
+
+# YOLOv5m, 640x640, RGB
+> hailortcli run2 --measure-latency set-net ./resources/yolov5m.hef
+
+[HailoRT CLI] [warning] Measuring latency; frames are sent one at a time and FPS will not be measured
+[===================>] 100% 00:00:00
+yolov5m: hw latency: 17.01 ms
+
+
+#
+# DOES THE GOVERNOR MAKES A DIFFERENCE ON THE OVERALL-LATENCY MEASURE ?
+#
+
+# set governor to "ondemand"
+
+cpufreq-set -g ondemand
+
+# test yolov8
+
+run2 --measure-overall-latency set-net ./resources/yolov8m.hef
+[HailoRT CLI] [warning] Measuring latency; frames are sent one at a time and FPS will not be measured
+[===================>] 100% 00:00:00
+yolov8m: overall latency: 50.22 ms
+
+
+# now set to "performance"
+
+cpufreq-set -g performance
+
+# test yolov8
+
+ hailortcli run2 --measure-overall-latency set-net ./resources/yolov8m.hef
+[HailoRT CLI] [warning] Measuring latency; frames are sent one at a time and FPS will not be measured
+[===================>] 100% 00:00:00
+yolov8m: overall latency: 46.43 ms
+
+
+
+
+
