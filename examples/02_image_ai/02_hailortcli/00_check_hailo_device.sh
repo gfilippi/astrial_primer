@@ -1,0 +1,1 @@
+hailortcli --fw-control identify

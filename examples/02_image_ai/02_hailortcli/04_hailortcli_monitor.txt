@@ -1,0 +1,48 @@
+1) open two ssh shell to your astrial board
+
+2) on the first shell launch the hailortcli monitor (adapt the window size since hailo monitor is wide)
+
+> hailortcli monitor
+
+3) on the second shell export the monitor variable:
+
+> export HAILO_MONITOR=1
+
+4) now launch your network inference:
+
+hailortcli run ./yolox_tiny.hef -c 2000
+
+5) unexport variable
+
+> export -n HAILO_MONITOR
+
+
+===================================================================================
+while running inference you will be able to see realtime the network load like this:
+===================================================================================
+
+
+
+Device ID                                                   Utilization (%)          Architecture
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+0000:01:00.0                                                100.0                    HAILO8
+
+
+Model                                                       Utilization (%)          FPS            PID
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+yolox_tiny                                                  100.0                    122.8          1834
+
+
+Model                                                       Stream                                                      Direction                Frames Queue
+                                                                                                                                       Avg     Max     Min     Capacity
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+yolox_tiny                                                  yolox_tiny/input_layer1                                     H2D            0.50    1       0       4
+yolox_tiny                                                  yolox_tiny/conv83_111                                       D2H            0.50    1       0       4
+yolox_tiny                                                  yolox_tiny/conv82_111                                       D2H            0.50    1       0       4
+yolox_tiny                                                  yolox_tiny/conv81_111                                       D2H            0.50    1       0       4
+yolox_tiny                                                  yolox_tiny/conv70_111                                       D2H            0.50    1       0       4
+yolox_tiny                                                  yolox_tiny/conv69_111                                       D2H            0.50    1       0       4
+yolox_tiny                                                  yolox_tiny/conv68_111                                       D2H            0.50    1       0       4
+yolox_tiny                                                  yolox_tiny/conv56_111                                       D2H            0.50    1       0       4
+yolox_tiny                                                  yolox_tiny/conv55_111                                       D2H            0.50    1       0       4
+yolox_tiny                                                  yolox_tiny/conv54_111                                       D2H            0.50    1       0       4
