@@ -39,6 +39,7 @@ typedef struct app_params_
 typedef struct event_data_
 {
     int event_cnt;
+    uint32_t event_delay;
 } EVENT_DATA_T;
 
 
@@ -115,7 +116,7 @@ static void timer_handler( int sig, siginfo_t* si, void* uc )
              "[%s][%d] Timer fired %d \n", app_name, g_app_params->app_tid, ++data->event_cnt );
 
     gpiod_ctxless_set_value( IMX8MP_CAM_GPIOCHIP, IMX8MP_CAM_GPIO, 1, 0, g_app_params->argv[ 0 ], NULL, NULL );
-    usleep( 1 );
+    usleep( data->event_delay );
     gpiod_ctxless_set_value( IMX8MP_CAM_GPIOCHIP, IMX8MP_CAM_GPIO, 0, 0, g_app_params->argv[ 0 ], NULL, NULL );
 }
 
@@ -241,7 +242,7 @@ int main( int argc, char** argv )
      * Timer: event signal action & data
      */
     timer_t           timer_id = 0;
-    EVENT_DATA_T      event_data = { .event_cnt = 0 };
+    EVENT_DATA_T      event_data = { .event_cnt = 0, .event_delay=1 };
     struct sigevent   sigTimerEvent = { 0 };
     struct sigaction  sigTimerHandler = { 0 };
 
@@ -311,6 +312,9 @@ int main( int argc, char** argv )
         timer_delay.it_value.tv_nsec = delay_nsec;
         timer_delay.it_interval.tv_sec = 0;
         timer_delay.it_interval.tv_nsec = delay_nsec;
+
+        /* set delay */
+        event_data.event_delay = (uint32_t) (delay_nsec/2000);
     }
 
     sigTimerEvent.sigev_notify = SIGEV_SIGNAL;
