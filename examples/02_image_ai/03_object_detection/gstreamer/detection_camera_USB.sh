@@ -62,7 +62,7 @@ parse_args $@
 
 export GST_HAILO_USE_DMA_BUFFER=1
 
-PIPELINE="gst-launch-1.0 \
+PIPELINE="gst-launch-1.0 -e \
     v4l2src device=$input_source ! image/jpeg,format=MJPG,width=1280,height=720,framerate=30/1 ! jpegdec ! videoconvert ! \
     queue leaky=downstream max-size-buffers=5 max-size-bytes=0 max-size-time=0 ! \
     hailonet hef-path=$hef_path ! \
@@ -72,9 +72,7 @@ PIPELINE="gst-launch-1.0 \
     hailooverlay ! \
     queue leaky=downstream max-size-buffers=5 max-size-bytes=0 max-size-time=0 ! \
     imxvideoconvert_g2d !  vpuenc_h264 ! h264parse ! qtmux ! filesink location=\"output.mp4\""
-    
-    #videoconvert ! \
-    #fpsdisplaysink video-sink=autovideosink name=hailo_display sync=false text-overlay=false ${additional_parameters}"
+
 
 echo "Running $network_name"
 echo ${PIPELINE}
