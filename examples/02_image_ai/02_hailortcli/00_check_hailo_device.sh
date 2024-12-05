@@ -1,1 +1,1 @@
-hailortcli --fw-control identify
+sudo hailortcli fw-control identify

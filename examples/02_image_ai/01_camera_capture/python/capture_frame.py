@@ -3,6 +3,8 @@ import cv2
 
 # Create a new VideoCapture object, using "/dev/video3"
 cam = cv2.VideoCapture(3)
+cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
 # Initialise variables to store current time difference as well as previous time call value
 previous = time()
