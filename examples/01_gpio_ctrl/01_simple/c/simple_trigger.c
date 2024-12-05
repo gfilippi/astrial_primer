@@ -258,9 +258,9 @@ int main( int argc, char** argv )
         while ( 0 == app_params.quit )
         {
             gpiod_ctxless_set_value( IMX8MP_CAM_GPIOCHIP, IMX8MP_CAM_GPIO, 1, 0, argv[ 0 ], NULL, NULL );
-            usleep( 1 );
+            usleep( fps_delay /2 );
             gpiod_ctxless_set_value( IMX8MP_CAM_GPIOCHIP, IMX8MP_CAM_GPIO, 0, 0, argv[ 0 ], NULL, NULL );
-            usleep( fps_delay - 1 );
+            usleep( fps_delay  /2 );
         }
     }
 
