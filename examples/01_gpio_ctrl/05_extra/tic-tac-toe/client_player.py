@@ -3,7 +3,7 @@ import sys
 import threading
 
 class TicTacToeClient:
-    def __init__(self, host='localhost', port=12345):
+    def __init__(self, host='localhost', port=33333):
         self.server_host = host
         self.server_port = port
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

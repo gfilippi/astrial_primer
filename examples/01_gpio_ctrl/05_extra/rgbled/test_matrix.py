@@ -33,11 +33,26 @@ while True:
 	pattern = [0,0,2] + pattern
 
 	# write to I2C
-	bus.write_i2c_block_data(addr, 0, pattern)
+	rv = False
+	while not rv:
+		try:
+			bus.write_i2c_block_data(addr, 0, pattern)
+			rv=True
+		except:
+			usleep(100)
+			pass
 
-	usleep(400)
-	b = bus.read_byte(addr)
-	print(b)
+	rv=False
+	while not rv:
+		try:
+			b = bus.read_byte(addr)
+			rv=True
+			print(b)
+		except:
+			usleep(100)
+			pass
+
+
 	time.sleep(0.08)
 
 bus.close()

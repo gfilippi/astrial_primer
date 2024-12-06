@@ -2,16 +2,18 @@ import socket
 import threading
 import sys
 import random
+import rgbled
 
 # Game constants
 BOARD_SIZE = 4
 EMPTY = '.'
 
 class TicTacToeServer:
-    def __init__(self, host='localhost', port=12345):
+    def __init__(self, host='localhost', port=33333):
         self.host = host
         self.port = port
         self.board = [[EMPTY] * BOARD_SIZE for _ in range(BOARD_SIZE)]
+        self.pattern=[[0] * BOARD_SIZE for _ in range(BOARD_SIZE)]
         self.players = {}
         self.current_turn = None
         self.lock = threading.Lock()
@@ -21,13 +23,16 @@ class TicTacToeServer:
 
     def reset_board(self):
         self.board = [[EMPTY] * BOARD_SIZE for _ in range(BOARD_SIZE)]
+        self.pattern = [[0] * BOARD_SIZE for _ in range(BOARD_SIZE)]
         self.players = {}
         self.current_turn = None
         self.playing_against_computer = False
 
     def print_board(self):
+        rgbled.display_4x4(self.pattern)
+
         for row in self.board:
-            print(' '.join(row))
+            print(' '.join(row))            
         print()
 
     def check_winner(self):
@@ -54,6 +59,7 @@ class TicTacToeServer:
         if empty_positions:
             x, y = random.choice(empty_positions)
             self.board[x][y] = self.players['server']
+            self.pattern[x][y] = 1 if (self.players['server']=='O') else 2
             print(f"Server placed at ({x}, {y})")
             self.print_board()
 
@@ -70,7 +76,7 @@ class TicTacToeServer:
     def handle_client(self, client_socket, client_address):
         self.client_sockets.append(client_socket)
         try:
-            client_socket.sendall(b"Welcome to Tic Tac Toe. Type '1' to play against another player, '2' to play against the computer:\n")
+            client_socket.sendall(b"************************\n Welcome to Tic Tac Toe. ************************\n\n Type '1' to play against another player, '2' to play against the computer:\n")
             choice = client_socket.recv(1024).decode().strip()
 
             if choice == '2':
@@ -111,6 +117,7 @@ class TicTacToeServer:
                                 client_socket.sendall(b"Error: Invalid position.\n")
                                 continue
                             self.board[x][y] = self.players[client_name]
+                            self.pattern[x][y] = 1 if (self.players[client_name]=='O') else 2
                             self.print_board()
 
                             winner = self.check_winner()

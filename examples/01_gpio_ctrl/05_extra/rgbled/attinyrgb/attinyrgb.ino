@@ -31,8 +31,6 @@ enum led_pattern_type
     LEDS_OFF=0,         // Make sure this item is always *first* in the enum!
     LEDS_ON,
     LEDS_SET_PATTERN,
-    LEDS_RAINBOW,
-    LEDS_RAINBOW_CYCLE,
     LEDS_LAST           // Make sure this item is always *last* in the enum!
 };
 
@@ -40,9 +38,11 @@ enum led_pattern_type
 /* GLOBALS                                                                     */
 /* *************************************************************************** */
 volatile uint8_t request[ MAX_TRANSMISSION ];   // incoming I2C data.
-volatile uint16_t request_len = 0;
+volatile uint8_t request_len = 0;
 volatile uint8_t response[ MAX_TRANSMISSION ];  // outgoing I2C data.
-volatile uint16_t response_len = 0;
+volatile uint8_t response_len = 0;
+
+volatile uint8_t rv = 0;
 
 volatile bool handleCommand = false;
 
@@ -74,13 +74,14 @@ void i2cReceive( uint8_t n )
     }
 
     handleCommand = true;
+    rv = request_len;
 }
 
 
 void i2cRequest( )
 {
     // just a ping
-    TinyWireS.write( request_len );
+    TinyWireS.write( rv );
 }
 
 
@@ -100,13 +101,13 @@ void setup( )
     TinyWireS.onReceive( i2cReceive );
 
     delay( 500 );
-    colorWipe( pixels.Color( 128, 0, 0 ) );
+    colorWipe( pixels.Color( 128, 0, 0 ),20 );
     delay( 500 );
-    colorWipe( pixels.Color( 0, 128, 0 ) );
+    colorWipe( pixels.Color( 0, 128, 0 ) ,20);
     delay( 500 );
-    colorWipe( pixels.Color( 0, 0, 128 ) );
+    colorWipe( pixels.Color( 0, 0, 128 ),20 );
     delay( 500 );
-    colorWipe( pixels.Color( 0, 0, 0 ) );
+    colorWipe( pixels.Color( 0, 0, 0 ) ,20);
 }
 
 
@@ -140,7 +141,7 @@ void loop( )
                         case LEDS_OFF:
                             /* all black */
                             colorWipe( pixels.Color( 0, 0, 0 ) );
-                            request_len = 0; // confirm command accepted
+                            rv = 0; // confirm command accepted
                             break;
 
                         case LEDS_ON:
@@ -148,13 +149,13 @@ void loop( )
                             if ( request_len > 4 )
                             {
                                 colorWipe( pixels.Color( request[ 4 ], request[ 4 ], request[ 4 ] ) );
-                                request_len = 0; // confirm command accepted
+                                rv = 0; // confirm command accepted
                             }
                             else
                             {
                                 /* all white,fixed intensity */
                                 colorWipe( pixels.Color( 100, 100, 100 ) );
-                                request_len = 0; // confirm command accepted
+                                rv = 0; // confirm command accepted
                             }
                             break;
 
@@ -192,7 +193,7 @@ void loop( )
                                     }
                                     pixels.show( );
                                 }
-                                request_len = 0; // confirm command accepted
+                                rv = 0; // confirm command accepted
                             }
                     }
                 }
