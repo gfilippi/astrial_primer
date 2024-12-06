@@ -76,7 +76,7 @@ class TicTacToeServer:
     def handle_client(self, client_socket, client_address):
         self.client_sockets.append(client_socket)
         try:
-            client_socket.sendall(b"************************\n Welcome to Tic Tac Toe. ************************\n\n Type '1' to play against another player, '2' to play against the computer:\n")
+            client_socket.sendall(b"************************\n Welcome to Tic Tac Toe. \n************************\n\n Type '1' to play against another player, '2' to play against the computer:\n")
             choice = client_socket.recv(1024).decode().strip()
 
             if choice == '2':
