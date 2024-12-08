@@ -8,7 +8,7 @@ addr = 0x6a
 
 usleep = lambda x: time.sleep(x/1000000.0)
 
-# API_MJR=0, API_MIN=0, CMD=1 (all white)
+# API_MJR=0, API_MIN=0, CMD=0 (all OFF)
 data = [0,0, 1]
 
 while True:

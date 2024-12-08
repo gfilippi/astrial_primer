@@ -29,7 +29,7 @@ while True:
 	for i in range(16):
            pattern[display_mtx[i]]=data[i]
 
-	# add API_VER and CMD
+	# add API_VER=0,0 and CMD=2 (pattern)
 	pattern = [0,0,2] + pattern
 
 	# write to I2C
