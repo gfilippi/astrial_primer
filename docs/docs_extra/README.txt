@@ -9,3 +9,8 @@ Balancing CPU and NPU while choosing the correct image format can improve perfor
 thanks to modifications to the network input structure.
 Using a different image pixel format (YCbCr 4:2:0 vs RGB 4:4:4) is not having an impact
 on the final accuracy
+
+petazzoni-device-tree-dummies.pdf 
+================================ 
+From https://bootlin.com/ an introduction to linunx kernel device tree 
+and how to use them for an embedded device.
