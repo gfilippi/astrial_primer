@@ -9,7 +9,9 @@ set(COMPILE_OPTIONS -Wall -Wextra -Wconversion -O3 -fconcepts -Wno-ignored-quali
 find_package(Threads)
 
 find_package(HailoRT REQUIRED)
-find_package(OpenCV REQUIRED)
+
+find_package (OpenCV 4.5.4 EXACT REQUIRED PATHS /usr/include/ )
+#find_package(OpenCV REQUIRED)
 
 message(STATUS "Found OpenCV: " ${OpenCV_INCLUDE_DIRS})
 
